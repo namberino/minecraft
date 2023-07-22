@@ -36,7 +36,7 @@ public class World : MonoBehaviour
 
     Queue<Queue<VoxelMod>> modifications = new Queue<Queue<VoxelMod>>();
 
-    private bool _inUI = false;
+    public Clouds clouds;
 
     Thread ChunkUpdateThread;
     public object ChunkUpdateThreadLock = new object();
@@ -62,7 +62,7 @@ public class World : MonoBehaviour
         }
 
         SetGlobalLightValue();
-        spawnPosition = new Vector3((VoxelData.WorldSizeInChunks * VoxelData.ChunkWidth) / 2f, VoxelData.ChunkHeight - 50f, (VoxelData.WorldSizeInChunks * VoxelData.ChunkWidth) / 2f);
+        spawnPosition = new Vector3(VoxelData.WorldCentre, VoxelData.ChunkHeight - 50f, VoxelData.WorldCentre);
         GenerateWorld();
         playerLastChunkCoord = GetChunkCoordFromVector3(player.position);
     }
@@ -227,6 +227,8 @@ public class World : MonoBehaviour
 
     void CheckViewDistance()
     {
+        clouds.UpdateClouds();
+
         ChunkCoord coord = GetChunkCoordFromVector3(player.position);
         playerLastChunkCoord = playerChunkCoord;
         List<ChunkCoord> previouslyActiveChunks = new List<ChunkCoord>(activeChunks);
@@ -295,19 +297,19 @@ public class World : MonoBehaviour
         return new VoxelState(GetVoxel(pos));
     }
 
-    public bool inUI
-    {
-        get { return _inUI; }
-        set
-        {
-            _inUI = value;
+    //public bool inUI
+    //{
+    //    get { return _inUI; }
+    //    set
+    //    {
+    //        _inUI = value;
 
-            if (_inUI)
-                Cursor.lockState = CursorLockMode.None;
-            else
-                Cursor.lockState = CursorLockMode.Locked;
-        }
-    }
+    //        if (_inUI)
+    //            Cursor.lockState = CursorLockMode.None;
+    //        else
+    //            Cursor.lockState = CursorLockMode.Locked;
+    //    }
+    //}
 
     // the heart of the world generation algorithm
     public byte GetVoxel(Vector3 pos)

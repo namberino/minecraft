@@ -45,31 +45,31 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!world.inUI)
-        {
-            CalculateVelocity();
-            if (jumpRequest)
-                Jump();
+        //if (!world.inUI)
+        //{
+        CalculateVelocity();
+        if (jumpRequest)
+            Jump();
 
-            // update player view and walking direction 
-            transform.Rotate(Vector3.up * mouseHorizontal * world.settings.mouseSensitivity);
-            cam.Rotate(Vector3.right * -mouseVertical * world.settings.mouseSensitivity); // rotate around the right axis
-            transform.Translate(velocity, Space.World);
-        }
+        // update player view and walking direction 
+        transform.Rotate(Vector3.up * mouseHorizontal * world.settings.mouseSensitivity);
+        cam.Rotate(Vector3.right * -mouseVertical * world.settings.mouseSensitivity); // rotate around the right axis
+        transform.Translate(velocity, Space.World);
+        //}
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            world.inUI = !world.inUI;
-        }
+        //if (Input.GetKeyDown(KeyCode.P))
+        //{
+        //    world.inUI = !world.inUI;
+        //}
 
-        if (!world.inUI)
-        {
-            GetPlayerInputs();
-            PlaceCursorBlock();
-        }
+        //if (!world.inUI)
+        //{
+        GetPlayerInputs();
+        PlaceCursorBlock();
+        //}
 
         //GetPlayerInputs();
         //PlaceCursorBlock();
