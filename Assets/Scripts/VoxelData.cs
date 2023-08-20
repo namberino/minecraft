@@ -8,7 +8,7 @@ public static class VoxelData
     public static readonly int ChunkHeight = 128;
     public static readonly int WorldSizeInChunks = 100;
 
-    // Lighting Values
+    // lighting Values
     public static float minLightLevel = 0.1f;
     public static float maxLightLevel = 0.9f;
     public static float lightFalloff = 0.08f;
