@@ -2,17 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Game object transform: position, rotation and scale of an object
+
 public class Chunk
 {
     public ChunkCoord coord;
 
     GameObject chunkObject;
-    MeshRenderer meshRenderer;
-    MeshFilter meshFilter;
+    MeshRenderer meshRenderer; // for rendering
+    MeshFilter meshFilter; // for filtering the mesh and making it look nice
 
-    int vertexIndex = 0;
-    List<Vector3> vertices = new List<Vector3>();
-    List<int> triangles = new List<int>();
+    int vertexIndex = 0; 
+    List<Vector3> vertices = new List<Vector3>(); // vertices of a voxel
+    List<int> triangles = new List<int>(); // list of triangles to draw on a voxel to make a face
     List<int> transparentTriangles = new List<int>();
     List<Vector2> uvs = new List<Vector2>();
     Material[] materials = new Material[2];
@@ -21,7 +23,7 @@ public class Chunk
 
     public Vector3 position;
 
-    public VoxelState[,,] voxelMap = new VoxelState[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
+    public VoxelState[,,] voxelMap = new VoxelState[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth]; // map of voxels 
 
     public Queue<VoxelMod> modifications = new Queue<VoxelMod>();
 
@@ -36,6 +38,7 @@ public class Chunk
         world = _world;
     }
 
+    // method for initializing the 16x16xheight chunks
     public void Init()
     {
         chunkObject = new GameObject();
@@ -55,6 +58,7 @@ public class Chunk
         PopulateVoxelMap();
     }
 
+    // fill in voxel map with voxel data
     void PopulateVoxelMap()
     {
         for (int y = 0; y < VoxelData.ChunkHeight; y++)
@@ -79,6 +83,7 @@ public class Chunk
             chunkObject.AddComponent<ChunkLoadAnimation>();
     }
 
+    // update the chunks (redo the mesh and light)
     public void UpdateChunk()
     {
         while (modifications.Count > 0)
@@ -108,12 +113,14 @@ public class Chunk
             }
         }
 
+        // drawing the chunks with threading 
         lock (world.chunksToDraw)
         {
             world.chunksToDraw.Enqueue(this);
         }
     }
 
+    // a method for calculating the light level a voxel face would have
     void CalculateLight()
     {
         Queue<Vector3Int> litVoxels = new Queue<Vector3Int>();
@@ -165,6 +172,7 @@ public class Chunk
         }
     }
 
+    // clearing the data of mesh (used when a voxel is out of the player's visible chunk)
     void ClearMeshData()
     {
         vertexIndex = 0;
@@ -176,6 +184,7 @@ public class Chunk
         normals.Clear();
     }
 
+    // check if the chunk is active or not (if not and set the activity according to the player's view 
     public bool isActive
     {
         get { return _isActive; }
@@ -190,6 +199,7 @@ public class Chunk
         }
     }
 
+    // check if a voxel is editable (ie can be broken and placed on
     public bool isEditable
     {
         get
@@ -201,6 +211,7 @@ public class Chunk
         }
     }
 
+    // check if the voxel is in certain chunk
     bool IsVoxelInChunk(int x, int y, int z)
     {
         if (x < 0 || x > VoxelData.ChunkWidth - 1 || y < 0 || y > VoxelData.ChunkHeight - 1 || z < 0 || z > VoxelData.ChunkWidth - 1)
@@ -209,6 +220,7 @@ public class Chunk
             return true;
     }
 
+    // a method that allows the player to edit a certain voxel and then updating the chunk to refresh 
     public void EditVoxel(Vector3 pos, byte newID)
     {
         int xCheck = Mathf.FloorToInt(pos.x);
@@ -227,6 +239,8 @@ public class Chunk
         }
     }
 
+    // update the surrounding voxels of a certain voxel (because when a voxel is rendered, if a face is not visible to the player, it won't get rendered.
+    // So if the player were to break the block, the surrounding voxels' faces would have to get updated)
     void UpdateSurroundingVoxels(int x, int y, int z)
     {
         Vector3 thisVoxel = new Vector3(x, y, z);
@@ -242,6 +256,7 @@ public class Chunk
         }
     }
 
+    // check and return a certain voxel
     VoxelState CheckVoxel(Vector3 pos)
     {
         int x = Mathf.FloorToInt(pos.x);
@@ -254,6 +269,7 @@ public class Chunk
         return voxelMap[x, y, z];
     }
 
+    // getting a voxel from a certain position
     public VoxelState GetVoxelFromGlobalVector3(Vector3 pos)
     {
         int xCheck = Mathf.FloorToInt(pos.x);
@@ -266,20 +282,21 @@ public class Chunk
         return voxelMap[xCheck, yCheck, zCheck];
     }
 
+    // a method for updating the chunks mesh data
     void UpdateMeshData(Vector3 pos)
     {
-
+        // get the position of the voxel
         int x = Mathf.FloorToInt(pos.x);
         int y = Mathf.FloorToInt(pos.y);
         int z = Mathf.FloorToInt(pos.z);
 
-        byte blockID = voxelMap[x, y, z].id;
+        byte blockID = voxelMap[x, y, z].id; // getting the block id
         //bool isTransparent = world.blocktypes[blockID].renderNeighborFaces;
 
         for (int p = 0; p < 6; p++)
         {
             VoxelState neighbor = CheckVoxel(pos + VoxelData.faceChecks[p]);
-
+            // rendering the faces of the block and its neighbor blocks' faces
             if (neighbor != null && world.blocktypes[neighbor.id].renderNeighborFaces)
             {
                 vertices.Add(pos + VoxelData.voxelVerts[VoxelData.voxelTris[p, 0]]);
@@ -290,15 +307,16 @@ public class Chunk
                 for (int i = 0; i < 4; i++)
                     normals.Add(VoxelData.faceChecks[p]);
 
-                AddTexture(world.blocktypes[blockID].GetTextureID(p));
+                AddTexture(world.blocktypes[blockID].GetTextureID(p)); // adding the texture to the block
 
-                float lightlevel = neighbor.globalLightPercent;
+                float lightlevel = neighbor.globalLightPercent; // get the light level for the alpha
 
                 colors.Add(new Color(0, 0, 0, lightlevel));
                 colors.Add(new Color(0, 0, 0, lightlevel));
                 colors.Add(new Color(0, 0, 0, lightlevel));
                 colors.Add(new Color(0, 0, 0, lightlevel));
 
+                // adding the solid block triangles to the faces to create a block
                 if (!world.blocktypes[neighbor.id].renderNeighborFaces)
                 {
                     triangles.Add(vertexIndex);
@@ -308,7 +326,7 @@ public class Chunk
                     triangles.Add(vertexIndex + 1);
                     triangles.Add(vertexIndex + 3);
                 }
-                else
+                else // this is the same thing but for the transparent block
                 {
                     transparentTriangles.Add(vertexIndex);
                     transparentTriangles.Add(vertexIndex + 1);
@@ -323,6 +341,7 @@ public class Chunk
         }
     }
 
+    // a method for rendering the mesh of a voxel
     public void CreateMesh()
     {
         Mesh mesh = new Mesh();
@@ -342,11 +361,14 @@ public class Chunk
         meshFilter.mesh = mesh;
     }
 
+    // adding in the texture for the voxel
     void AddTexture(int textureID)
     {
+        // x and y is the position of the block face in the image in the Resources/AtlasPacker
         float y = textureID / VoxelData.TextureAtlasSizeInBlocks;
         float x = textureID - (y * VoxelData.TextureAtlasSizeInBlocks);
 
+        // normalize the block texture size
         x *= VoxelData.NormalizedBlockTextureSize;
         y *= VoxelData.NormalizedBlockTextureSize;
 
@@ -359,6 +381,7 @@ public class Chunk
     }
 }
 
+// a class to get the coordinate of the chunk
 public class ChunkCoord
 {
     public int x;
@@ -385,6 +408,7 @@ public class ChunkCoord
         z = zCheck / VoxelData.ChunkWidth;
     }
 
+    // check if 2 chunk coords is equal to each other
     public bool Equals(ChunkCoord other)
     {
         if (other == null)
@@ -396,6 +420,7 @@ public class ChunkCoord
     }
 }
 
+// a class to save the current state of a voxel (for lighting)
 public class VoxelState
 {
     public byte id;

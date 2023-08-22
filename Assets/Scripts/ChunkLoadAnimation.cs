@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// some fancy animation for loading chunk
 public class ChunkLoadAnimation : MonoBehaviour
 {
     float speed = 3f;
@@ -17,6 +18,7 @@ public class ChunkLoadAnimation : MonoBehaviour
         transform.position = new Vector3(transform.position.x, -VoxelData.ChunkHeight, transform.position.z);
     }
 
+    // load the chunk with animation
     private void Update()
     {
         if (timer < waitTimer)

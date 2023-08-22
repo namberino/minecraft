@@ -4,6 +4,7 @@ using UnityEngine;
 
 public static class Structure
 {
+    // function to determine which flora to generate
     public static Queue<VoxelMod> GenerateMajorFlora(int index, Vector3 position, int minTrunkHeight, int maxTrunkHeight)
     {
         switch (index)
@@ -45,6 +46,7 @@ public static class Structure
         return queue;
     }
 
+    // generating cacti within the cactus range
     public static Queue<VoxelMod> MakeCacti(Vector3 position, int minTrunkHeight, int maxTrunkHeight)
     {
         Queue<VoxelMod> queue = new Queue<VoxelMod>();
@@ -60,3 +62,7 @@ public static class Structure
         return queue;
     }
 }
+
+/*
+Perlin noise generates certain spots the generate flora function can generate trees
+*/

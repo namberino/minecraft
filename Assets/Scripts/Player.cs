@@ -75,6 +75,7 @@ public class Player : MonoBehaviour
         //PlaceCursorBlock();
     }
 
+    // calculate the vertical momentum and based on the jump force
     void Jump()
     {
         verticalMomentum = jumpForce;
@@ -83,9 +84,10 @@ public class Player : MonoBehaviour
 
     }
 
+    // a method for calculating the velocity of the player
     private void CalculateVelocity()
     {
-        // Affect vertical momentum with gravity
+        // affect vertical momentum with gravity
         if (verticalMomentum > gravity)
             verticalMomentum += Time.fixedDeltaTime * gravity;
 
@@ -109,21 +111,24 @@ public class Player : MonoBehaviour
             velocity.y = CheckUpSpeed(velocity.y);
     }
 
+    // getting the inputs of the player
     private void GetPlayerInputs()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-            Application.Quit();
+        //if (Input.GetKeyDown(KeyCode.Escape))
+        //    Application.Quit();
 
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
         mouseHorizontal = Input.GetAxis("Mouse X");
         mouseVertical = Input.GetAxis("Mouse Y");
 
+        // sprint button is set to shift
         if (Input.GetButtonDown("Sprint"))
             isSprinting = true;
         if (Input.GetButtonUp("Sprint"))
             isSprinting = false;
 
+        // for jumping
         if (isGrounded && Input.GetButtonDown("Jump"))
             jumpRequest = true;
 
@@ -139,11 +144,13 @@ public class Player : MonoBehaviour
         }
     }
 
+    // this method is for placing the block in front of the player within a certain range
     private void PlaceCursorBlock()
     {
-        float step = checkIncrement;
+        float step = checkIncrement; // this is how far the player's cursor is to the block that it is pointing towards
         Vector3 lastPos = new Vector3();
 
+        // only allow placing block when the player is in range
         while (step < reach)
         {
             Vector3 pos = cam.position + (cam.forward * step);
@@ -166,6 +173,8 @@ public class Player : MonoBehaviour
         highlightBlock.gameObject.SetActive(false);
         placeBlock.gameObject.SetActive(false);
     }
+
+    // VERTICAL COLLISION DETECTION
 
     // downwards collision detection
     private float CheckDownSpeed(float downSpeed)
@@ -207,6 +216,8 @@ public class Player : MonoBehaviour
             return upSpeed;
         }
     }
+
+    // HORIZONTAL COLLISION DETECTION
 
     // check the 2 blocks in front of the player
     public bool front

@@ -67,6 +67,7 @@ public class World : MonoBehaviour
         playerLastChunkCoord = GetChunkCoordFromVector3(player.position);
     }
 
+    // setting the global light value
     public void SetGlobalLightValue()
     {
         Shader.SetGlobalFloat("GlobalLightLevel", globalLightLevel);
@@ -81,6 +82,7 @@ public class World : MonoBehaviour
         if (!playerChunkCoord.Equals(playerLastChunkCoord))
             CheckViewDistance();
 
+        // check if the modifications to the chunk needs to be applied (updating the chunk visibility)
         if (!applyingModifications)
             ApplyModifications();
 
@@ -90,6 +92,7 @@ public class World : MonoBehaviour
         if (chunksToUpdate.Count > 0)
             UpdateChunks();
 
+        // getting the chunks to draw and drawing the mesh for those chunks
         if (chunksToDraw.Count > 0)
         {
             if (chunksToDraw.Peek().isEditable)
@@ -116,6 +119,7 @@ public class World : MonoBehaviour
     //    settings = JsonUtility.FromJson<Settings>(jsonImport);
     //}
 
+    // generate the world
     void GenerateWorld()
     {
         for (int x = (VoxelData.WorldSizeInChunks / 2) - settings.viewDistance; x < (VoxelData.WorldSizeInChunks / 2) + settings.viewDistance; x++)
@@ -131,6 +135,7 @@ public class World : MonoBehaviour
         CheckViewDistance();
     }
 
+    // initialize the chunk in the world
     void CreateChunk()
     {
         ChunkCoord c = chunksToCreate[0];
@@ -138,6 +143,7 @@ public class World : MonoBehaviour
         chunks[c.x, c.z].Init();
     }
 
+    // check if the chunk that needs to be updated is in the active chunks list or not and act on it accordingly
     void UpdateChunks()
     {
         bool updated = false;
@@ -165,6 +171,7 @@ public class World : MonoBehaviour
         }
     }
 
+    // updating the chunks with threading
     void ThreadedUpdate()
     {
         while (true)
@@ -177,6 +184,7 @@ public class World : MonoBehaviour
         }
     }
 
+    // disaple or enable threading
     private void OnDisable()
     {
         if (settings.enableThreading)
@@ -185,6 +193,7 @@ public class World : MonoBehaviour
         }
     }
 
+    // queueing the chunks and adding the chunks to the chunkstocreate list
     void ApplyModifications()
     {
         applyingModifications = true;
@@ -211,6 +220,7 @@ public class World : MonoBehaviour
         applyingModifications = false;
     }
 
+    // getting the coordinate of the chunk the player is currently on
     ChunkCoord GetChunkCoordFromVector3(Vector3 pos)
     {
         int x = Mathf.FloorToInt(pos.x / VoxelData.ChunkWidth);
@@ -218,6 +228,7 @@ public class World : MonoBehaviour
         return new ChunkCoord(x, z);
     }
 
+    // getting the chunk the player is currently in 
     public Chunk GetChunkFromVector3(Vector3 pos)
     {
         int x = Mathf.FloorToInt(pos.x / VoxelData.ChunkWidth);
@@ -225,9 +236,10 @@ public class World : MonoBehaviour
         return chunks[x, z];
     }
 
+    // this method will check the view distance of the player and update the chunk's activity (active or inactive)
     void CheckViewDistance()
     {
-        clouds.UpdateClouds();
+        clouds.UpdateClouds(); // updating cloud according to the player
 
         ChunkCoord coord = GetChunkCoordFromVector3(player.position);
         playerLastChunkCoord = playerChunkCoord;
@@ -271,6 +283,7 @@ public class World : MonoBehaviour
             chunks[c.x, c.z].isActive = false;
     }
 
+    // check if the voxel is solid or not 
     public bool CheckForVoxel(Vector3 pos)
     {
         ChunkCoord thisChunk = new ChunkCoord(pos);
@@ -284,6 +297,7 @@ public class World : MonoBehaviour
         return blocktypes[GetVoxel(pos)].isSolid;
     }
 
+    // getting the current state of the voxel (for editing, like breaking the voxel and placing a block on the voxel and stuff)
     public VoxelState GetVoxelState(Vector3 pos)
     {
         ChunkCoord thisChunk = new ChunkCoord(pos);
@@ -296,20 +310,6 @@ public class World : MonoBehaviour
 
         return new VoxelState(GetVoxel(pos));
     }
-
-    //public bool inUI
-    //{
-    //    get { return _inUI; }
-    //    set
-    //    {
-    //        _inUI = value;
-
-    //        if (_inUI)
-    //            Cursor.lockState = CursorLockMode.None;
-    //        else
-    //            Cursor.lockState = CursorLockMode.Locked;
-    //    }
-    //}
 
     // the heart of the world generation algorithm
     public byte GetVoxel(Vector3 pos)
@@ -386,7 +386,7 @@ public class World : MonoBehaviour
             }
         }
 
-        // TREE PASS
+        // FLORA PASS (adding the trees and cacti)
         if (yPos == terrainHeight && biome.placeMajorFlora)
         {
             if (Noise.Get2DPerlin(new Vector2(pos.x, pos.z), 0, biome.majorFloraZoneScale) > biome.majorFloraZoneThreshold)
@@ -401,6 +401,7 @@ public class World : MonoBehaviour
         return voxelValue;
     }
 
+    // check if the chunk is in the player view distance (world)
     bool IsChunkInWorld(ChunkCoord coord)
     {
         if (coord.x > 0 && coord.x < VoxelData.WorldSizeInChunks - 1 && coord.z > 0 && coord.z < VoxelData.WorldSizeInChunks - 1)
@@ -409,6 +410,7 @@ public class World : MonoBehaviour
             return false;
     }
 
+    // check if the voxel is in the player view distance (world)
     bool IsVoxelInWorld(Vector3 pos)
     {
         if (pos.x >= 0 && pos.x < VoxelData.WorldSizeInVoxels && pos.y >= 0 && pos.y < VoxelData.ChunkHeight && pos.z >= 0 && pos.z < VoxelData.WorldSizeInVoxels)
@@ -418,6 +420,7 @@ public class World : MonoBehaviour
     }
 }
 
+// for storing the data of the block
 [System.Serializable]
 public class BlockType
 {
@@ -459,6 +462,7 @@ public class BlockType
     }
 }
 
+// getting the position and id of the voxel
 public class VoxelMod
 {
     public Vector3 position;
@@ -477,6 +481,7 @@ public class VoxelMod
     }
 }
 
+// change the settings for testing
 [System.Serializable]
 public class Settings
 {

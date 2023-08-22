@@ -30,12 +30,13 @@ public class Clouds : MonoBehaviour
         CreateClouds();
     }
 
+    // getting the data (color and opacity) of the cloud voxels
     private void LoadCloudData()
     {
         cloudData = new bool[cloudTexWidth, cloudTexWidth];
         Color[] cloudTex = cloudPattern.GetPixels();
 
-        // loop through colour array and set bools depending on opacity of colour.
+        // loop through color array and set bools depending on opacity of colour.
         for (int x = 0; x < cloudTexWidth; x++)
         {
             for (int y = 0; y < cloudTexWidth; y++)
@@ -45,6 +46,7 @@ public class Clouds : MonoBehaviour
         }
     }
 
+    // creating clouds
     private void CreateClouds()
     {
         for (int x = 0; x < cloudTexWidth; x += cloudTileSize)
@@ -57,6 +59,7 @@ public class Clouds : MonoBehaviour
         }
     }
 
+    // updating the clouds according to the player's position
     public void UpdateClouds()
     {
         for (int x = 0; x < cloudTexWidth; x += cloudTileSize)
@@ -72,11 +75,13 @@ public class Clouds : MonoBehaviour
         }
     }
 
+    // rounding the cloud size to make it looks blocky
     private int RoundToCloud(float value)
     {
         return Mathf.FloorToInt(value / cloudTileSize) * cloudTileSize;
     }
 
+    // creating a cloud mesh to render 
     private Mesh CreateCloudMesh(int x, int z)
     {
         List<Vector3> vertices = new List<Vector3>();
@@ -124,6 +129,7 @@ public class Clouds : MonoBehaviour
         return mesh;
     }
 
+    // creating the tiles of the cloud
     private GameObject CreateCloudTile(Mesh mesh, Vector3 position)
     {
         GameObject newCloudTile = new GameObject();
@@ -139,11 +145,13 @@ public class Clouds : MonoBehaviour
         return newCloudTile;
     }
 
+    // getting the cloud tile position
     private Vector2Int CloudTilePosFromV3(Vector3 pos)
     {
         return new Vector2Int(CloudTileCoordFromFloat(pos.x), CloudTileCoordFromFloat(pos.z));
     }
 
+    // a helper method for getting the cloud position
     private int CloudTileCoordFromFloat(float value)
     {
         float a = value / (float)cloudTexWidth; // gets the position using cloudtexture width as units.

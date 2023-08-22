@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
+// a class of the title menu
 public class TitleMenu : MonoBehaviour
 {
     [Header("Main menu UI elements")]

@@ -2,8 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Generate a perlin noise map
 public static class Noise
 {
+    // generate a 2d perlin noise for generating terrain
     public static float Get2DPerlin(Vector2 position, float offset, float scale)
     {
         position.x += (offset + VoxelData.seed + 0.1f);
@@ -14,6 +16,7 @@ public static class Noise
         return Mathf.PerlinNoise(position.x / VoxelData.ChunkWidth * scale, position.y / VoxelData.ChunkWidth * scale);
     }
 
+    // generate a 3d perlin noise for generating caves
     public static bool Get3dPerlin(Vector3 position, float offset, float scale, float threshold)
     {
         float x = (position.x + offset + VoxelData.seed + 0.1f) * scale;

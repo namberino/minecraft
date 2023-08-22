@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+// The infamous debug screen that gives data like the fps of the game
 public class DebugScreen : MonoBehaviour
 {
     World world;
@@ -17,6 +18,7 @@ public class DebugScreen : MonoBehaviour
 
     void Start()
     {
+        // getting the world and text along with the data of the world 
         world = GameObject.Find("World").GetComponent<World>();
         text = GetComponent<TMP_Text>();
 
@@ -26,6 +28,7 @@ public class DebugScreen : MonoBehaviour
 
     void Update()
     {
+        // these are the fps and coordinates of the player
         string debugText = "Minecraft by nam";
         debugText += "\n";
         debugText += frameRate + " fps";
@@ -35,6 +38,7 @@ public class DebugScreen : MonoBehaviour
 
         text.text = debugText;
 
+        // this calculates the frame rate of the player
         if (timer > 1f)
         {
             frameRate = (int)(1f / Time.unscaledDeltaTime);
