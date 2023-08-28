@@ -1,3 +1,3 @@
 # Minecraft clone in Unity
 
-Open the Assets/Scripts for the code, other files are unity stuff
+Open the [Assets/Scripts](Assets/Scripts) for the code, and for graphics, open the [Assets/Textures](Assets/Textures)
